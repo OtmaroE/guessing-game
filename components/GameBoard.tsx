@@ -78,6 +78,27 @@ export default function GameBoard() {
     );
   }
 
+  const getBoxContent = (item: GameItem) => {
+    if (!item.visible && !item.solved) return null;
+    if (item.value === -1) {
+      return (
+        <img 
+          src='../assets/images/death.png' 
+          style={{ width: '100%', height: '100%' }}
+          alt="death"
+        />
+      );
+    }
+    return (
+      <div 
+        style={item.solved? styles.solvedBoxText : styles.boxText}
+        id={`number-${item.index}`}
+      >
+        {item.value}
+      </div>
+    );
+  }
+
 
   return (
     <View style={styles.container}>
@@ -89,15 +110,8 @@ export default function GameBoard() {
             setEvaluationRound(prev => !prev);
           }}
         >
-          <View style={styles.box}>
-            {boardState[idx].visible && (
-              <div 
-                style={styles.boxText}
-                id={`number-${boardState[idx].index}`}
-              >
-                {boardState[idx].value}
-              </div>
-            )}
+          <View style={boardState[idx].solved ? styles.solvedBox : styles.box}>
+            {getBoxContent(boardState[idx])}
           </View>
         </Pressable>
       ))}
@@ -125,6 +139,20 @@ const styles = StyleSheet.create({
     borderColor: '#132cd9',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  solvedBox: {
+    width: 80,
+    height: 80,
+    backgroundColor: '#acf383ff',
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderColor: '#28aee2ff',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  solvedBoxText: {
+    fontSize: 18,
+    color: 'gray',
   },
   boxText: {
     fontSize: 18,
