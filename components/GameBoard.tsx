@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 const GRID_SIZE = 9;
 const PAIRS_COUNT = 4;
 const DELAY_MS = 1000;
@@ -32,8 +32,10 @@ function orderGenerator(): GameItem[] {
 export default function GameBoard() {
   const [evaluationRound, setEvaluationRound] = useState<boolean>(true);
   const [boardState, setBoardState] = useState<GameItem[]>(orderGenerator());
+  const [pairsLeft, setPairsLeft] = useState<number>(PAIRS_COUNT);
 
   useEffect(() => {
+    setPairsLeft(4 - boardState.filter(item => item.solved).length / 2);
     if (evaluationRound) {
       const timer = setTimeout(() => {
         evaluateBoard();
@@ -101,25 +103,37 @@ export default function GameBoard() {
 
 
   return (
-    <View style={styles.container}>
-      {Array.from({ length: GRID_SIZE }).map((_, idx) => (
-        <Pressable
-          key={`cell-${idx}`}
-          onPress={() => {
-            toggleNumber(idx);
-            setEvaluationRound(prev => !prev);
-          }}
-        >
-          <View style={boardState[idx].solved ? styles.solvedBox : styles.box}>
-            {getBoxContent(boardState[idx])}
-          </View>
-        </Pressable>
-      ))}
+    <View>
+      <Text style={styles.title}>
+        {pairsLeft === 0 ? "You Won!" : `${pairsLeft} pairs left to find`}
+      </Text>
+      <View style={styles.container}>
+        {Array.from({ length: GRID_SIZE }).map((_, idx) => (
+          <Pressable
+            key={`cell-${idx}`}
+            onPress={() => {
+              toggleNumber(idx);
+              setEvaluationRound(prev => !prev);
+            }}
+          >
+            <View style={boardState[idx].solved ? styles.solvedBox : styles.box}>
+              {getBoxContent(boardState[idx])}
+            </View>
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: 'white',
+    textAlign: 'center',
+  },
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',

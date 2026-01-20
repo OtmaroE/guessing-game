@@ -6,10 +6,10 @@ export default function Game() {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
 
   return (
-    <View>
-      <GameBoard />
+    <View style={styles.container}>
+      { gameStarted && <GameBoard />}
       { !gameStarted &&
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer }>
         <Pressable style={styles.button} onPress={() => setGameStarted(true)}>
           <Text style={styles.buttonText}>Start Game</Text>
         </Pressable>
@@ -21,17 +21,27 @@ export default function Game() {
         </Pressable>
       </View>
       }
+      {
+        gameStarted &&
+        <Pressable style={styles.button} onPress={() => setGameStarted(false)}>
+          <Text style={styles.buttonText}>End Game</Text>
+        </Pressable>
+      }
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 40,
+  },
   buttonContainer: {
     padding: 20,
     gap: 12,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#007bffbb',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
