@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 const GRID_SIZE = 9;
 const PAIRS_COUNT = 4;
 const DELAY_MS = 1000;
@@ -63,31 +63,34 @@ export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: 
     );
   }
 
-  const toggleNumber = (touchedIndex: number): void => {
+  const tryToggle = (touchedIndex: number) => {
     const visibleUnsolved = boardState.filter(item => item.visible && !item.solved);
-    if (visibleUnsolved.length >= 2) return;
-    
-    const foundItem = boardState[touchedIndex];
-    if (foundItem.solved || foundItem.visible) return;
+    if (evaluationRound && visibleUnsolved.length > 0) return false;
+    if (visibleUnsolved.length >= 2) return false;
 
-    setBoardState(prevState => 
-      prevState.map((item, index) => 
-        index === touchedIndex 
-          ? { ...item, visible: true }
-          : item
+    const foundItem = boardState[touchedIndex];
+    if (foundItem.solved || foundItem.visible) return false;
+
+    setBoardState(prevState =>
+      prevState.map((item, index) =>
+        index === touchedIndex ? { ...item, visible: true } : item
       )
     );
+    setEvaluationRound(prev => !prev);
   }
 
   const getBoxContent = (item: GameItem) => {
     if (!item.visible && !item.solved) return null;
     if (item.value === -1) {
       return (
-        <img 
-          src='../assets/images/death.png' 
-          style={{ width: '100%', height: '100%' }}
-          alt="death"
-        />
+        <View style={styles.imageWrapper}>
+          <Image
+            source={require('../assets/images/death.png')}
+            style={styles.image}
+            resizeMode="cover"
+            accessibilityLabel="death"
+          />
+        </View>
       );
     }
     return (
@@ -110,10 +113,7 @@ export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: 
         {Array.from({ length: GRID_SIZE }).map((_, idx) => (
           <Pressable
             key={`cell-${idx}`}
-            onPress={() => {
-              toggleNumber(idx);
-              setEvaluationRound(prev => !prev);
-            }}
+            onPress={() => tryToggle(idx)}
           >
             <View style={boardState[idx].solved ? styles.solvedBox : styles.box}>
               {getBoxContent(boardState[idx])}
@@ -170,4 +170,15 @@ const styles = StyleSheet.create({
   boxText: {
     fontSize: 18,
   }
+  ,
+  imageWrapper: {
+    width: '100%',
+    height: '100%',
+    padding: 6,
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 4,
+  },
 });
