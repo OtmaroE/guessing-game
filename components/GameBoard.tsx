@@ -29,13 +29,12 @@ function orderGenerator(): GameItem[] {
     }));
 }
 
-export default function GameBoard() {
+export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: number, onPairLeftChange: (pairsLeft: number) => void }) {
   const [evaluationRound, setEvaluationRound] = useState<boolean>(true);
   const [boardState, setBoardState] = useState<GameItem[]>(orderGenerator());
-  const [pairsLeft, setPairsLeft] = useState<number>(PAIRS_COUNT);
 
   useEffect(() => {
-    setPairsLeft(4 - boardState.filter(item => item.solved).length / 2);
+    onPairLeftChange(4 - boardState.filter(item => item.solved).length / 2);
     if (evaluationRound) {
       const timer = setTimeout(() => {
         evaluateBoard();

@@ -4,10 +4,12 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
+  // TODO: Currently hard-coding the number of pairs, but this should be dynamic based on the game settings
+  const [pairsLeft, setPairsLeft] = useState<number>(4);
 
   return (
     <View style={styles.container}>
-      { gameStarted && <GameBoard />}
+      { gameStarted && <GameBoard pairsLeft={pairsLeft} onPairLeftChange={setPairsLeft} />}
       { !gameStarted &&
         <View style={styles.buttonContainer }>
         <Pressable style={styles.button} onPress={() => setGameStarted(true)}>
@@ -24,7 +26,7 @@ export default function Game() {
       {
         gameStarted &&
         <Pressable style={styles.button} onPress={() => setGameStarted(false)}>
-          <Text style={styles.buttonText}>End Game</Text>
+          <Text style={styles.buttonText}>{ pairsLeft === 0 ? "New Game" : "End Game"}</Text>
         </Pressable>
       }
     </View>
