@@ -32,10 +32,13 @@ function orderGenerator(): GameItem[] {
 export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: number, onPairLeftChange: (pairsLeft: number) => void }) {
   const [evaluationRound, setEvaluationRound] = useState<boolean>(true);
   const [boardState, setBoardState] = useState<GameItem[]>(orderGenerator());
+  const [numberOfAttempts, setNumberOfAttempts] = useState<number>(0);
 
   useEffect(() => {
     onPairLeftChange(4 - boardState.filter(item => item.solved).length / 2);
     if (evaluationRound) {
+      setNumberOfAttempts(prev => prev + 1);
+      console.log('evaluation round, number of attempts: ', numberOfAttempts);
       const timer = setTimeout(() => {
         evaluateBoard();
       }, DELAY_MS);
@@ -103,11 +106,16 @@ export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: 
     );
   }
 
+  const getBoxStyle = (item: GameItem) => {
+    if (item.solved) return styles.solvedBox;
+    if (item.visible) return styles.visibleBox;
+    return styles.box;
+  };
 
   return (
     <View>
       <Text style={styles.title}>
-        {pairsLeft === 0 ? "You Won!" : `${pairsLeft} pairs left to find`}
+        {pairsLeft === 0 ? `You Won in ${numberOfAttempts} attempts!` : `${pairsLeft} pairs left to find`}
       </Text>
       <View style={styles.container}>
         {Array.from({ length: GRID_SIZE }).map((_, idx) => (
@@ -115,7 +123,7 @@ export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: 
             key={`cell-${idx}`}
             onPress={() => tryToggle(idx)}
           >
-            <View style={boardState[idx].solved ? styles.solvedBox : styles.box}>
+            <View style={getBoxStyle(boardState[idx])}>
               {getBoxContent(boardState[idx])}
             </View>
           </Pressable>
@@ -163,12 +171,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  visibleBox: {
+    width: 80,
+    height: 80,
+    backgroundColor: 'rgb(131, 202, 243)',
+    borderWidth: 2,
+    borderStyle: 'solid',
+    borderColor: 'rgb(13, 55, 170)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   solvedBoxText: {
     fontSize: 18,
     color: 'gray',
   },
   boxText: {
     fontSize: 18,
+    color: 'black',
   }
   ,
   imageWrapper: {
