@@ -4,31 +4,53 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 export default function Game() {
   const [gameStarted, setGameStarted] = useState<boolean>(false);
-  // TODO: Currently hard-coding the number of pairs, but this should be dynamic based on the game settings
+  const [showAboutPage, setShowAboutPage] = useState<boolean>(false);
   const [pairsLeft, setPairsLeft] = useState<number>(4);
 
   return (
     <View style={styles.container}>
-      { gameStarted && <GameBoard pairsLeft={pairsLeft} onPairLeftChange={setPairsLeft} />}
-      { !gameStarted &&
-        <View style={styles.buttonContainer }>
-        <Pressable style={styles.button} onPress={() => setGameStarted(true)}>
-          <Text style={styles.buttonText}>Start Game</Text>
-        </Pressable>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Settings</Text>
-        </Pressable>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>About</Text>
-        </Pressable>
-      </View>
-      }
-      {
-        gameStarted &&
+      {gameStarted && <GameBoard pairsLeft={pairsLeft} onPairLeftChange={setPairsLeft} />}
+
+      {!gameStarted && !showAboutPage && (
+        <View style={styles.buttonContainer}>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              setShowAboutPage(false);
+              setGameStarted(true);
+            }}
+          >
+            <Text style={styles.buttonText}>Start Game</Text>
+          </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={() => {
+              setGameStarted(false);
+              setShowAboutPage(true);
+            }}
+          >
+            <Text style={styles.buttonText}>About</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {showAboutPage && (
+        <View style={styles.aboutContainer}>
+          <View style={styles.aboutCard}>
+            <Text style={styles.aboutTitle}>Developed by otmaro</Text>
+            <Text style={styles.aboutLink}>https://otmaro.dev</Text>
+          </View>
+          <Pressable style={styles.button} onPress={() => setShowAboutPage(false)}>
+            <Text style={styles.buttonText}>Back</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {gameStarted && (
         <Pressable style={styles.button} onPress={() => setGameStarted(false)}>
-          <Text style={styles.buttonText}>{ pairsLeft === 0 ? "New Game" : "End Game"}</Text>
+          <Text style={styles.buttonText}>{pairsLeft === 0 ? 'New Game' : 'End Game'}</Text>
         </Pressable>
-      }
+      )}
     </View>
   );
 }
@@ -41,6 +63,37 @@ const styles = StyleSheet.create({
   buttonContainer: {
     padding: 20,
     gap: 12,
+  },
+  aboutContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    gap: 20,
+  },
+  aboutCard: {
+    backgroundColor: '#d7ebff',
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: '#3b79b5',
+    paddingVertical: 28,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    shadowColor: '#1f3f5a',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  aboutTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#184a75',
+    marginBottom: 8,
+  },
+  aboutLink: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2f6799',
   },
   button: {
     backgroundColor: '#007bffbb',
