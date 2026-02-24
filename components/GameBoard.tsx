@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 const GRID_SIZE = 9;
 const PAIRS_COUNT = 4;
@@ -34,27 +34,14 @@ export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: 
   const [boardState, setBoardState] = useState<GameItem[]>(orderGenerator());
   const [numberOfAttempts, setNumberOfAttempts] = useState<number>(0);
 
-  useEffect(() => {
-    onPairLeftChange(4 - boardState.filter(item => item.solved).length / 2);
-    if (evaluationRound) {
-      setNumberOfAttempts(prev => prev + 1);
-      console.log('evaluation round, number of attempts: ', numberOfAttempts);
-      const timer = setTimeout(() => {
-        evaluateBoard();
-      }, DELAY_MS);
-      return () => clearTimeout(timer);
-    }
-  }, [evaluationRound, boardState]); // Add boardState as dependency
-
-
-  const evaluateBoard = (): void => {
+  const evaluateBoard = useCallback((): void => {
     const visibleItems = boardState.filter(item => item.visible && !item.solved);
     if (visibleItems.length !== 2) return;
 
     const [firstItem, secondItem] = visibleItems;
     const matched = firstItem.value === secondItem.value;
 
-    setBoardState(prevState => 
+    setBoardState(prevState =>
       prevState.map(item => {
         if (!visibleItems.some(v => v.index === item.index)) return item;
         return {
@@ -64,7 +51,22 @@ export default function GameBoard({ pairsLeft, onPairLeftChange }: { pairsLeft: 
         };
       })
     );
-  }
+  }, [boardState]);
+
+  useEffect(() => {
+    onPairLeftChange(4 - boardState.filter(item => item.solved).length / 2);
+    if (evaluationRound) {
+      setNumberOfAttempts(prev => {
+        const next = prev + 1;
+        console.log('evaluation round, number of attempts: ', next);
+        return next;
+      });
+      const timer = setTimeout(() => {
+        evaluateBoard();
+      }, DELAY_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [boardState, evaluateBoard, evaluationRound, onPairLeftChange]);
 
   const tryToggle = (touchedIndex: number) => {
     const visibleUnsolved = boardState.filter(item => item.visible && !item.solved);
