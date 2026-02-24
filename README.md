@@ -1,4 +1,4 @@
-# Memeory-guessing game
+# Memory-guessing game
 
 This is a PoC of a guessing game using react native.
 
